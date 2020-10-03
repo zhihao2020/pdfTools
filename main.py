@@ -1,11 +1,10 @@
 from ui import Ui_Form
 from PyQt5.QtWidgets import *
 import sys
-import PyPDF2
+import PyPDF3
 import os
 import string
 import itertools
-
 class reload(QWidget,Ui_Form):
     def __init__(self):
         super(reload,self).__init__()
@@ -46,8 +45,9 @@ class reload(QWidget,Ui_Form):
         try:
             pdfFile = open(self.filenames[0], 'rb')
 
-            pdfReader = PyPDF2.PdfFileReader(pdfFile)
-            pdfWriter = PyPDF2.PdfFileWriter()
+            pdfReader = PyPDF3.PdfFileReader(pdfFile)
+
+            pdfWriter = PyPDF3.PdfFileWriter()
             start = self.spinBox.value()
             fin = self.spinBox_2.value()
 
@@ -74,13 +74,16 @@ class reload(QWidget,Ui_Form):
 
             print((QMessageBox.information(self, '提示', '请先添加PDF', QMessageBox.Yes,
                                       QMessageBox.Yes)))
+        except PyPDF3.utils.PdfReadError:
+            print((QMessageBox.information(self, '提示', '请先解密PDF', QMessageBox.Yes,
+                                      QMessageBox.Yes)))
     def startChaifen2(self):
         try:
             pdfFile = open(self.filenames[0], 'rb')
         except IndexError:
             print((QMessageBox.information(self, '提示', '请先添加PDF', QMessageBox.Yes,
                                       QMessageBox.Yes)))
-        pdfReader = PyPDF2.PdfFileReader(pdfFile)
+        pdfReader = PyPDF3.PdfFileReader(pdfFile)
        # pdfWriter = PyPDF2.PdfFileWriter()
         fenshu = self.spinBox_3.value()
         print("选择：", fenshu)
@@ -116,7 +119,7 @@ class reload(QWidget,Ui_Form):
         pdfFile.close()
 
     def startChaifen2_1(self,name,start,fin):
-        pdfWriter = PyPDF2.PdfFileWriter()
+        pdfWriter = PyPDF3.PdfFileWriter()
         for n in range(start,fin):
             pageObj = name.getPage(n)
             pdfWriter.addPage(pageObj)
@@ -136,12 +139,13 @@ class reload(QWidget,Ui_Form):
                     self.listWidget_2.addItem(str(name))
             self.listWidget_2.show()
         except:pass
+        
     def startHebing(self):
-        pdfWriter = PyPDF2.PdfFileWriter()
+        pdfWriter = PyPDF3.PdfFileWriter()
         for name in self.filenames:
             print(name)
             pdfFile = open(name,"rb")
-            pdfReader = PyPDF2.PdfFileReader(pdfFile, strict=False)
+            pdfReader = PyPDF3.PdfFileReader(pdfFile, strict=False)
             for pageNum in range(pdfReader.numPages):
                 pageObj = pdfReader.getPage(pageNum)
                 pdfWriter.addPage(pageObj)
@@ -185,15 +189,15 @@ class reload(QWidget,Ui_Form):
         print(strings)
         return itertools.chain(*strings)
 
-
     def startPojie(self):
         pan = 0
         try:
             pdfFile = open(self.filenames[0],"rb")
-            pdfReader = PyPDF2.PdfFileReader(pdfFile)
-            pdfWriter = PyPDF2.PdfFileWriter()
+            pdfReader = PyPDF3.PdfFileReader(pdfFile)
+            pdfWriter = PyPDF3.PdfFileWriter()
             if pdfReader.isEncrypted:
                 print("解密中ing......")
+                self.pushButton_4.setEnabled(True)
                 list_str = self.get_strings()
                 for x in list_str:
                     QApplication.processEvents()
@@ -205,12 +209,8 @@ class reload(QWidget,Ui_Form):
                                                    QMessageBox.Yes))
                             pan =1
                             raise Exception('This is the error message.')
-
             else:print(QMessageBox.information(self, '提示', '此文件并未加密！', QMessageBox.Yes,
                                                    QMessageBox.Yes))
-            #if pan == 0:
-             #   print(QMessageBox.information(self, '提示', '解密失败,位数不够', QMessageBox.Yes,
-              #                                     QMessageBox.Yes))
             if pan ==1:
                 for pageNum in range(pdfReader.numPages):
                     pageObj = pdfReader.getPage(pageNum)
@@ -219,11 +219,9 @@ class reload(QWidget,Ui_Form):
                 pdfWriter.write(pdfOutFile)
                 pdfOutFile.close()
                 pdfFile.close()
-
         except IndexError:
             print(QMessageBox.information(self, '提示', '请添加pdf文件', QMessageBox.Yes,
                                           QMessageBox.Yes))
-
         except:pass
 
     def jiami(self):
@@ -245,8 +243,8 @@ class reload(QWidget,Ui_Form):
         except IndexError:
             print((QMessageBox.information(self, '提示', '请先添加PDF', QMessageBox.Yes,
                                       QMessageBox.Yes)))
-        pdfReader = PyPDF2.PdfFileReader(pdfFile)
-        pdfWriter = PyPDF2.PdfFileWriter()
+        pdfReader = PyPDF3.PdfFileReader(pdfFile)
+        pdfWriter = PyPDF3.PdfFileWriter()
         if pdfReader.isEncrypted:
             print(print((QMessageBox.information(self, '提示', '此文件已经加密', QMessageBox.Yes,
                                       QMessageBox.Yes))))
@@ -261,8 +259,6 @@ class reload(QWidget,Ui_Form):
             pdfFile.close()
             print(QMessageBox.information(self, '提示', "加密成功", QMessageBox.Yes,
                                           QMessageBox.Yes))
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWin = reload()
